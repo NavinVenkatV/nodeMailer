@@ -1,52 +1,90 @@
-const nodeMailer = require("nodemailer");
-const pdfKit = require("pdfkit");
-const fs = require('fs')
+// const nodeMailer = require("nodemailer");
+// const pdfKit = require("pdfkit");
+// const fs = require('fs')
 
-function createPdf(filePath){
-    return new Promise((resolve, reject)=>{
-        const doc = new pdfKit();
-        const path = fs.createWriteStream(filePath)
+////////////way of sending mail with pdf contanerized
 
-        doc.pipe(path)
-        doc.text("Hello Aravindan! Welcome to Amazon ",{align: "center"})
-        doc.end();
+// function createPdf(filePath){
+//     return new Promise((resolve, reject)=>{
+//         const doc = new pdfKit();
+//         const path = fs.createWriteStream(filePath)
 
-        path.on('finish',()=>  resolve());
-        path.on('error',(err)=>reject(err));
-    })
-}
+//         doc.pipe(path)
+//         doc.text("Hello Aravindan! Welcome to Amazon ",{align: "center"})
+//         doc.end();
 
-async function sendMail(){
-    const filePath = "offerLetter.pdf";
+//         path.on('finish',()=>  resolve());
+//         path.on('error',(err)=>reject(err));
+//     })
+// }
 
-    try{
-        await createPdf(filePath);
+// async function sendMail(){
+//     const filePath = "offerLetter.pdf";
 
-        const transporter = nodeMailer.createTransport({
-            service : "gmail",
-            auth : {
-                user : "xxxxxxxxxxxxxxx",
-                pass : "xxxxxxxxxxxx"
-            }
-        })
+//     try{
+//         await createPdf(filePath);
 
-        const details = {
-            from : "xxxxxxxxxxxxxxxx",
-            to : "xxxxxxxxxxxxxxxxxxxxxx",
-            subject : "Offer letter from Navin Venkat pvt.lt",
-            text : "Kindly open the pdf below",
-            attachments : [{
-                filename : "Ofl.pdf",
-                path : filePath
-            }]
-        }
+//         const transporter = nodeMailer.createTransport({
+//             service : "gmail",
+//             auth : {
+//                 user : "navinvenkatv@gmail.com",
+//                 pass : "nbtngmghheazdrzj"
+//             }
+//         })
 
-        await transporter.sendMail(details);
-        console.log("Email sent successfully!")
+//         const details = {
+//             from : "navinvenkatv@gmail.com",
+//             to : "vnavinvenkat@gmail.com",
+//             subject : "Offer letter from Navin Venkat pvt.lt",
+//             text : "Kindly open the pdf below",
+//             attachments : [{
+//                 filename : "Ofl.pdf",
+//                 path : filePath
+//             }]
+//         }
 
-    }catch(err){
-        console.log("Error ", err);
+//         await transporter.sendMail(details);
+//         console.log("Email sent successfully!")
+
+//     }catch(err){
+//         console.log("Error ", err);
+//     }
+// }
+
+// sendMail();
+
+//Normal way of sending text to mail
+const nodeMailer = require("nodemailer")
+
+const transporter = nodeMailer.createTransport({
+    service : "gmail",
+    auth : {
+        user : "navinvenkatv@gmail.com",
+        pass : "nbtngmghheazdrzj"
     }
+})
+
+function otpNo(){
+    let otp = 0;
+   for(let i=0;i<4;i++){
+    const rand = Math.floor(Math.random() * 1000) ;
+    otp += rand;
+   }
+    return otp;
+}
+const otp = otpNo();
+
+const detials = {
+    from : "navinvenkatv@gmail.com",
+    to : "vnavinvenkat@gmail.com",
+    subject : "Nodemailer testing",
+    html : `Your otp for registeration is ${otp}`
 }
 
-sendMail();
+transporter.sendMail(detials, (error, info)=>{
+    
+        if(error){
+            console.log("Error Occured ", error)
+        }else
+        console.log("Email sent successfully ",info.messageId)
+})
